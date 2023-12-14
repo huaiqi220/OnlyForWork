@@ -103,38 +103,199 @@ public:
 
 需要注意的是，C++11引入了移动语义（Move Semantics）以及移动构造函数和移动赋值操作符，用于在某些情况下避免不必要的拷贝开销。移动构造函数允许将资源从一个对象移动到另一个对象，而不是执行昂贵的深拷贝。
 
-### 拷贝构造函数需要在类中手动声明吗， 还是编译器会帮助我自动生成
 
-？可能自动生成？
+### 怎么理解右值引用和完美转发
+
+？
 
 #### GPT
 
-在大多数情况下，如果你没有显式声明拷贝构造函数，C++编译器会为你自动生成默认的拷贝构造函数。这个默认的拷贝构造函数会按照逐个成员的方式进行拷贝。
+右值引用是C++11引入的一项特性，通过它可以支持移动语义和完美转发。右值引用使用双引号（&&）表示，与传统的左值引用（使用单引号&表示）相对应。右值引用允许我们对右值进行引用，其中右值通常是临时对象、字面量、或者表达式的结果。
 
-如果你的类不包含动态分配的资源（如堆上的内存），而只是简单地包含基本类型成员或其他可复制的对象，那么通常你不需要显式声明拷贝构造函数，编译器会提供一个默认的。
+### 1. 移动语义
 
-然而，有一些情况下你可能需要显式声明拷贝构造函数：
+右值引用的一个主要用途是支持移动语义。移动语义允许我们将资源（例如动态分配的内存）从一个对象“移动”到另一个对象，而不是传统的拷贝。这对于提高性能和避免不必要的深层拷贝操作非常有用。
 
-1. **动态分配的资源：** 如果你的类包含指针成员，或者使用了动态分配的资源（如使用 `new` 分配的内存），你可能需要定义自己的拷贝构造函数以确保深度拷贝，防止浅拷贝导致的问题。
+```cpp
+#include <iostream>
+#include <utility> // std::move
 
-    ```cpp
-    class MyClass {
-    public:
-        // 需要手动定义拷贝构造函数
-        MyClass(const MyClass& other) {
-            // 执行深度拷贝，而不仅仅是复制指针的值
+class MyString {
+public:
+    // 移动构造函数
+    MyString(MyString&& other) noexcept
+        : data(other.data), size(other.size) {
+        other.data = nullptr;
+        other.size = 0;
+    }
+
+    // 移动赋值操作符
+    MyString& operator=(MyString&& other) noexcept {
+        if (this != &other) {
+            delete[] data;  // 释放当前对象的资源
+            data = other.data;
+            size = other.size;
+            other.data = nullptr;
+            other.size = 0;
         }
-    };
-    ```
+        return *this;
+    }
 
-2. **删除默认生成的拷贝构造函数：** 在某些情况下，你可能想要阻止默认的拷贝构造函数生成，可以使用 `delete` 关键字来删除它。
+    // 析构函数
+    ~MyString() {
+        delete[] data;  // 释放资源
+    }
 
-    ```cpp
-    class MyClass {
-    public:
-        // 删除默认生成的拷贝构造函数
-        MyClass(const MyClass&) = delete;
-    };
-    ```
+private:
+    char* data;
+    size_t size;
+};
 
-总的来说，如果你的类符合默认的拷贝语义，你通常不需要手动声明拷贝构造函数。当你确实需要特定行为时，你可以显式声明拷贝构造函数。
+int main() {
+    MyString source("Hello, World!");
+
+    // 使用移动构造函数
+    MyString destination(std::move(source));
+
+    // 使用移动赋值操作符
+    MyString anotherDestination;
+    anotherDestination = std::move(destination);
+
+    return 0;
+}  // source、destination、anotherDestination销毁，资源被释放
+```
+
+### 2. 完美转发
+
+右值引用还支持完美转发，这是一种在函数中传递参数时保持参数类型的能力。通过使用右值引用，我们可以实现通用的函数，它可以接受并传递不同类型的参数，同时保留它们的值类别（左值或右值）。
+
+```cpp
+#include <iostream>
+#include <utility> // std::forward
+
+// 通用函数模板
+template <typename T>
+void process(T&& value) {
+    // 在这里可以使用value，保留其值类别（左值或右值）
+    std::cout << "Processing: " << value << std::endl;
+}
+
+int main() {
+    int x = 42;
+
+    // 传递左值
+    process(x);
+
+    // 传递右值
+    process(123);
+
+    return 0;
+}
+```
+
+在这个例子中，`process`函数接受一个右值引用参数`T&&`，通过`std::forward`将参数传递给其他函数或对象时，可以保留参数的值类别。
+
+总体来说，右值引用使得在C++中更灵活地处理资源，并且可以提高代码的性能。它是支持移动语义和完美转发的基础。
+
+
+### C++14有什么新特性
+
+？？
+
+#### GPT
+
+C++14 是 C++11 的一个小规模升级，旨在修复一些 C++11 中的缺陷并引入一些新特性，但相对于 C++11 而言，变化相对较小。C++14 于 2014 年发布，主要目标是改进和修复 C++11 中的一些问题，同时保持向后兼容性。
+
+一些 C++14 中的主要特性包括：
+
+1. **泛型 Lambda 表达式：** 允许在 lambda 表达式中使用 auto 参数，使得编写通用的 lambda 更加方便。
+
+```cpp
+auto add = [](auto x, auto y) { return x + y; };
+```
+
+2. **返回类型推导的函数：** 允许在函数声明中使用 auto 作为返回类型，从而简化函数签名。
+
+```cpp
+auto add(int x, int y) -> int {
+    return x + y;
+}
+```
+
+3. **泛型程序库的增强：** 一些标准库组件进行了改进，包括了对通用编程的更好支持，例如更多的 constexpr 函数和类型特性。
+
+4. **二进制字面值：** 允许使用 0b 或 0B 前缀表示二进制字面值。
+
+```cpp
+int binaryValue = 0b101010;
+```
+
+5. **数字分隔符：** 允许在数字字面值中使用单引号作为分隔符，提高可读性。
+
+```cpp
+int million = 1'000'000;
+```
+
+总体而言，C++14 引入了一些语法糖和对语言的微小改进，但并没有像 C++11 那样引入大规模的新特性。 C++14 代码在大多数情况下可以直接在支持 C++11 的编译器中编译。
+
+
+### C++17有什么新特性
+
+？？
+
+#### GPT
+
+C++17 是相对较小的升级，但它引入了一些有用的新特性，旨在改进 C++11 和 C++14，并提供更好的语法糖和库支持。C++17 于 2017 年发布，与 C++11 和 C++14 一样，它也着眼于改进语言的可用性和效率。
+
+以下是 C++17 引入的一些主要特性：
+
+1. **结构化绑定（Structured Bindings）：** 允许从 tuple 或其他数据结构中轻松解包成员。
+
+```cpp
+std::pair<int, double> myPair = {42, 3.14};
+auto [myInt, myDouble] = myPair;
+```
+
+2. **if 语句中的初始化器：** 允许在 if 和 switch 语句的条件部分中进行变量初始化。
+
+```cpp
+if (auto result = someFunction(); result > 0) {
+    // 使用 result 处理逻辑
+}
+```
+
+3. **折叠表达式（Fold Expressions）：** 简化了对参数包展开的语法，特别是在模板元编程中更为方便。
+
+```cpp
+template <typename... Args>
+auto sum(Args... args) {
+    return (args + ...);
+}
+```
+
+4. **constexpr if：** 允许在编译时选择性地执行代码，避免在运行时进行不必要的分支。
+
+```cpp
+template <typename T>
+void processValue(const T& value) {
+    if constexpr (std::is_integral<T>::value) {
+        // 处理整数类型
+    } else {
+        // 处理其他类型
+    }
+}
+```
+
+5. **std::optional：** 引入了一个新的标准库类型，用于表示可能为空的值，避免了使用指针或特殊值来表示缺失。
+
+```cpp
+std::optional<int> maybeValue = getOptionalValue();
+if (maybeValue) {
+    // 可以安全地访问值
+}
+```
+
+这些特性只是 C++17 中的一部分，还有其他一些语言和库方面的改进。总体而言，C++17 在语法简化、性能优化和库改进等方面做出了一些有益的改变。
+补充
+
+C++20引入了协程，这是一种轻量级的线程，可以在函数中暂停和恢复执行。协程可以用于编写高效的异步代码，例如在游戏中实现协程来处理事件循环。
