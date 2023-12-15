@@ -62,5 +62,57 @@ public:
 
 ```
 
+## 76 最小覆盖子串
+
+？？
+困难滑动窗口，改天做
+
+
+## 59 螺旋矩阵II
+
+没什么思考上的难度，就是一个纯模拟的题目，搞了半个小时
+
+利用引用、level、n这几个变量来逐层控制填充，每一层只填一个圈。
+
+```CPP
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        int start = 1;
+        int level = 0;
+        vector<vector<int>> res(n,vector<int>(n,0));
+        while(start <= n * n){
+            fillthematrix(start,res,level++,n);
+        }
+        return res;  
+    }
+    void fillthematrix(int& start,vector<vector<int>>& res,int level, int n){
+        if(n -1 -level == level){
+            res[level][level] = start;
+            start++;
+            return;
+        }
+        if(n - 1 -level < level)return;
+        for(int i = level; i <= n-2-level;i++){
+            res[level][i] = start;
+            start++;
+        }
+        for(int j = level; j <= n-2-level;j++){
+            res[j][n-1-level] = start;
+            start++;
+        }
+        for(int k = n - 1- level;k > level;k--){
+            res[n-1-level][k] = start;
+            start++;
+        }
+        for(int i = n - 1- level;i > level;i--){
+            res[i][level] = start;
+            start++;
+        }
+        return;
+    }
+};
+```
+
 
 

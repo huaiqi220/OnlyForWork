@@ -410,3 +410,42 @@ public:
     }
 };
 ```
+
+## 904水果成篮
+翻译题目：
+只有两种不同数字的子数组的长度最大值
+
+滑动窗口是可以做的，但我又写了个异常复杂的逻辑，各种控制变量乱飞，最后显而易见就是模型奇妙的解答错误。
+
+官方题解思路跟我写的是一致的，就是用一个Map记录水果种类及出现个数，出现了新种类直接动左指针不断丢水果，直到把出map的水果全部丢完。
+
+```CPP
+class Solution {
+public:
+    int totalFruit(vector<int>& fruits) {
+        int n = fruits.size();
+        unordered_map<int,int> cnt;
+        int left = 0;
+        int ans = 0;
+        for(int right = 0; right < n; right++){
+            ++cnt[fruits[right]];
+            while(cnt.size()>2){
+                auto it = cnt.find(fruits[left]);
+                --it->second;
+                if(it->second == 0){
+                    cnt.erase(it);
+                }
+                ++left;
+            }
+            ans = max(ans,right - left + 1);
+        }
+        return ans;
+    }
+};
+// 终于理解了，他不是先得知要删除的水果，
+// 而是直接从左往右删除，直到某一种水果为0，相当于对left的每一次移动，都重新查map，
+//删去对应的水果种类，在left与right相遇之前，总会有一种水果先删完，那剩下的水果肯定在left右边。
+// 有以结果为导向的这种感觉，学习了！
+```
+
+
