@@ -219,3 +219,194 @@ public:
 关键点：宁愿覆盖，也不删除，由于连续地址空间，删除的时间开销特别的大，所以优先覆盖。
 
 
+## 26 删除有序数组中的重复项
+
+经典的双指针，区别就是加了一个pivor在记录当前不重复的最后一个元素
+
+还有个编码小技巧就是尽量使得循环规律可以包括第0 个元素，这样就能避免单独处理第0个元素的情况
+
+```CPP
+class Solution {
+public:
+    int removeDuplicates(vector<int>& nums) {
+        int left = 1;
+        int pivor = *nums.begin();
+        for(int right = 1;right < nums.size(); right++){
+             if(nums[right] != pivor){
+                nums[left] = nums[right];
+                left++;
+                pivor = nums[right];
+             }
+        }
+        return left;
+    }
+};
+```
+
+## 283 移动零
+
+标准的双指针然后置0
+
+```CPP
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int left = 0;
+        for(int right = 0;right <nums.size();right++){
+            if(nums[right] != 0 ){
+                nums[left] = nums[right];
+                left++;
+            }
+        }
+        for(int i = left;i < nums.size();i++){
+            nums[i] = 0;
+        }
+        
+    }
+};
+```
+
+## 844 比较含退格的字符串
+
+方法1栈，
+
+```CPP
+class Solution {
+public:
+    bool backspaceCompare(string s, string t) {
+        stack<char> ss;
+        stack<char> st;
+        for(auto item : s){
+            if(item != '#'){
+                ss.push(item);
+
+            }else{
+                if(!ss.empty())ss.pop();
+            }
+        }
+        for(auto item : t){
+            if(item != '#'){
+                st.push(item);
+
+            }else{
+                if(!st.empty())st.pop();
+            }
+        }
+        if(ss == st) return true;
+        return false;
+    }
+};
+
+```
+
+
+方法2双指针，倒序抵消就做出来了，正序也可以，下标变化复杂一点点
+
+俩方法时间复杂度一样，空间复杂度双指针小
+```CPP
+class Solution {
+public:
+    bool backspaceCompare(string S, string T) {
+        int i = S.length() - 1, j = T.length() - 1;
+        int skipS = 0, skipT = 0;
+
+        while (i >= 0 || j >= 0) {
+            while (i >= 0) {
+                if (S[i] == '#') {
+                    skipS++, i--;
+                } else if (skipS > 0) {
+                    skipS--, i--;
+                } else {
+                    break;
+                }
+            }
+            while (j >= 0) {
+                if (T[j] == '#') {
+                    skipT++, j--;
+                } else if (skipT > 0) {
+                    skipT--, j--;
+                } else {
+                    break;
+                }
+            }
+            if (i >= 0 && j >= 0) {
+                if (S[i] != T[j]) {
+                    return false;
+                }
+            } else {
+                if (i >= 0 || j >= 0) {
+                    return false;
+                }
+            }
+            i--, j--;
+        }
+        return true;
+    }
+};
+// 从官网上抄的，实现起来很复杂，没必要
+```
+
+## 977 有序数组的平方
+
+第一反应是排序，然后平方，但是这样时间复杂度就是O(nlogn)
+
+双指针
+
+```CPP
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        int i  = 0;
+        int j = nums.size() - 1;
+        vector<int> res;
+        while(i<= j){
+            int ni = abs(nums[i]);
+            int nj = abs(nums[j]);
+            if(ni >= nj){
+                res.push_back(ni * ni);
+                i++;
+                continue;
+            }
+            if(ni < nj){
+                res.push_back(nj * nj);
+                j--;
+                continue;
+            }
+        }
+        std::reverse(res.begin(),res.end());
+        return res;
+    }
+};
+// O(n) 
+```
+
+桶排序好像也可以实现O(n)，一会再做
+
+## 209长度最小的子数组
+
+滑动窗口
+
+```CPP
+// 很简单的一个滑动窗口，但是在实现的时候，外循环指针没有弄清晰，导致卡了一会
+// 要多复习这个滑动窗口的双指针变化，争取不卡住
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int curTotal = 0;
+        int left = 0;
+        int right = 0;
+        int minNum = nums.size() + 1;
+        for(int i = 0;i < nums.size();i++){
+            curTotal += nums[i];
+            while(curTotal>= target){
+                minNum = min(minNum,i - left + 1);
+                curTotal -= nums[left];
+                left++;
+            }
+            
+        }
+        if(minNum == nums.size() + 1 )return 0;
+        return minNum;
+    }
+};
+```
