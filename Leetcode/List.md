@@ -137,7 +137,7 @@ ListNode* reverseList(ListNode* head) {
 这题我才用了一个非常复杂的方法，根据mark的正负来判断是插入末尾还是插入到last后面，然后last指针指向新的节点，最后返回dummy->next
 
 ```CPP
-
+// 我的复杂方法
 class Solution {
 public:
     ListNode* swapPairs(ListNode* head) {
@@ -164,11 +164,24 @@ public:
 
         return result;
     }
+
+    // 递归写法，递归写法比我的指针交换法不容易出错
+ListNode* swapPairs(ListNode* head) {
+    if(head == nullptr || head->next == nullptr){
+        return head;
+    }
+    ListNode* second = head->next;
+    head->next = swapPairs(second->next);
+    second->next = head;
+    return second;
+}
 };
 ```
 编码中有两个总结
 
 1. 不能直接!mark；mark =!mark 跟!mark不是一个东西！！！
 
-2. 
+2. head->next = nullptr;
+
+
 

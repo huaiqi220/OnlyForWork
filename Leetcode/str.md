@@ -114,5 +114,24 @@ public:
 };
 ```
 
+## 334 反转字符串
 
+```CPP
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int i = 0;
+        int j = s.size() -1;
+        while(i <= j){
+            swap(s[i],s[j]);
+            i++;
+            j--;
+        }
+    }
+};
+```
+
+## 151 翻转字符串里的单词
+
+简答想了下可以用stack存，但是答案说有原地算法，明天再做，出差去了
 
