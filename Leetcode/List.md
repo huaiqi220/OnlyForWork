@@ -5,34 +5,53 @@
 事实上直接记录小大两个链表就行了，也是一次遍历
 
 ```cpp
-class Solution {
-public:
-    ListNode* partition(ListNode* head, int x) {
-        ListNode* small = new ListNode();
-        ListNode* big = new ListNode();
-        while(head != nullptr){
-            if(head->val < x){
-                ListNode* m = head->next;
-                head->next = small->next;
-                small->next = head;
-                head = m;
-            }else if(head->val >= x){
-                ListNode* m = head->next;
-                head->next = big->next;
-                big->next = head;
-                head = m;
-            }
+ListNode* partition(ListNode* head, int x) {
+    ListNode* small = new ListNode();
+    ListNode* big = new ListNode();
+    while(head != nullptr){
+        if(head->val < x){
+            ListNode* m = head->next;
+            head->next = small->next;
+            small->next = head;
+            head = m;
+        }else if(head->val >= x){
+            ListNode* m = head->next;
+            head->next = big->next;
+            big->next = head;
+            head = m;
         }
-        ListNode* sl = small;
-        while(sl->next !=nullptr){
-            sl = sl->next;
-        }
-        sl->next = big->next;
-        return small->next;
-
-
     }
-};
+    ListNode* sl = small;
+    while(sl->next !=nullptr){
+        sl = sl->next;
+    }
+    sl->next = big->next;
+    return small->next;
+}
+
+ListNode* partition(ListNode* head, int x) {
+    if(head == nullptr) return head;
+    ListNode* dummy = new ListNode();
+    dummy->next = head;
+    ListNode* lptr =head->next;
+    // 第一次做的时候，始终出现莫名其妙的head used free，今天给我发现了，就是这head->next没有置nullptr
+    head->next = nullptr;
+    while(lptr != nullptr){
+        ListNode* m = lptr->next;
+        if(lptr->val < x){
+            lptr->next = dummy->next;
+            dummy->next = lptr;
+        }else{
+            lptr->next = head->next;
+            head->next = lptr;
+        }
+        lptr = m;
+    }
+    return dummy->next;
+}
+
+
+
 
 ```
 
