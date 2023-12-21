@@ -121,7 +121,7 @@ vector<int> inorderTraversal(TreeNode* root) {
 }
 ```
 
-## 102 层序遍历 && 107 层序遍历II
+## 102 层序遍历 && 107 层序遍历II && 199 二叉树的右视图 && 637 二叉树的层平均值
 
 自己写了一版，不太优雅，还有空指针的错误，排查了一小会，
 在这记录下标准的模板。
@@ -145,9 +145,82 @@ vector<vector<int>> levelOrder(TreeNode* root) {
     return res;
 }   
 // 其实跟我写的也没太大区别，有一点点区别就是可以用lsize记录当前层有多少个元素，就不用先把nextl记录到宁外的vector最后再填到queue里
+
+// 加左右子结点的时候先判空
+```
+注：max_element(begin(),end());返回的是一个迭代器，*提领就是最大值。
+
+## 429 N叉树的层序遍历
+
+
+```CPP
+//跟二叉树的层序是一个搞法
+vector<vector<int>> levelOrder(Node* root) {
+    vector<vector<int>> res;
+    if(root == nullptr) return res;
+    queue<Node*> q;
+    q.push(root);
+    while(!q.empty()){
+        res.push_back(vector<int>());
+        int lsize = q.size();
+        for(int i =0;i < lsize; i++){
+            res.back().push_back(q.front()->val);
+            vector<Node*> childs = q.front()->children;
+            for(auto item : childs){
+                q.push(item);
+            }
+            q.pop();
+        }
+    }
+    return res;
+}
 ```
 
-## 199 二叉树的右视图
+## 116 填充每个节点的下一个右侧节点指针 && 117 填充每个节点的下一个右侧节点指针II
+
+**这俩题目很有意思，116是完美二叉树，117是一般二叉树，我的做法针对所有二叉树都有效，但或许，完美二叉树时有简单做法？**
+
+直接做法，在经典的vector<vector<int>>中最后添加一个nullptr,然后遍历连接
+
+但其实不需要把res全部存下来。
+
+改进了一下，使用deque没有存全部节点，速度也一般，可能由于deque不是顺序容器。既然最后结果一般，代码就不粘贴在这了。
+
+用vector试试
+
+```CPP
+Node* connect(Node* root) {
+    vector<Node*> temp;
+    temp.push_back(root);
+    if(root == nullptr) return root;
+    int left = 0;
+    int right = temp.size()  ;
+    // [0,1)
+    while(left != right){
+        temp.push_back(nullptr); 
+        for(int i = left; i < right;i++){
+            temp[i]->next = temp[i + 1];
+            if(temp[i]->left)temp.push_back(temp[i]->left);
+            if(temp[i]->right)temp.push_back(temp[i]->right);
+        }
+        left = right + 1;
+        right = temp.size(); 
+    }
+    return root;
+}
+// 这个方法指针变化是比较复杂的
+```
+
+总而言之，能够快速的把层序遍历代码背出来，这题就不具有太大难度。
+
+## 104 二叉树的最大深度
+
+// 没精力接着写了，今天先到这
+
+
+
+
+
 
 
 
