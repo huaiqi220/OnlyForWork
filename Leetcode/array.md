@@ -448,4 +448,71 @@ public:
 // 有以结果为导向的这种感觉，学习了！
 ```
 
+## 239 滑动窗口最大值
 
+滑动窗口最大值的典型做法，使用deque维持一个递减队列，同时实际存储的是下标
+比我设想的，封装单调队列pop push的方法更简洁
+
+```CPP
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        int n = nums.size();
+        deque<int> q;
+        for(int i = 0; i < k; ++i){
+            while(!q.empty() && nums[i] >= nums[q.back()]){
+                q.pop_back();
+            }
+            q.push_back(i);
+        }
+        vector<int> ans = {nums[q.front()]};
+        for(int i = k; i < n; ++i){
+            while(!q.empty() && nums[i] >= nums[q.back()]){
+                q.pop_back();
+            }
+            q.push_back(i);
+            while(q.front() <= i - k){
+                q.pop_front();
+            }
+            ans.push_back(nums[q.front()]);
+        }
+        return ans;
+
+
+    }
+};
+```
+
+## 347 前K个高频元素
+第一眼  map排序？ O(n) + O(slogs)
+简单题目在这搞了半天，归根结底是对于C++的map vector等容器掌握不熟练
+首先一是自定义排序，二是map只能遍历，不能排序，排序需要先转换为vector
+
+```CPP
+class Solution {
+private:
+    static bool com(pair<int,int> p1,pair<int,int> p2){
+        return p1.second > p2.second;
+    }
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int,int> cmap;
+        for(auto item : nums){
+            cmap[item]++;
+        }
+        vector<pair<int, int>> vec(cmap.begin(), cmap.end());
+        sort(vec.begin(),vec.end(),com);
+        vector<int> res;
+        int count = 0;
+        for(auto item : vec ){
+            if(count < k){
+                res.push_back(item.first);
+                count++;
+            }else{
+                break;
+            }
+        }
+        return res;
+    }
+};
+```

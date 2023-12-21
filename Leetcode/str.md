@@ -135,3 +135,60 @@ public:
 
 简答想了下可以用stack存，但是答案说有原地算法，明天再做，出差去了
 
+
+
+
+## 1047 删除字符串中的所有相邻重复项
+
+```CPP
+// 这是一段并不合适的方法，1.方法执行特别的慢，2. 代码中存在多处容易执行出错的地方
+// 如while循环中的复杂判断，最后st.push前的索引检查等，这个方法并不合适
+class Solution {
+public:
+    string removeDuplicates(string s) {
+        stack<char> st;
+        for(int i = 0; i < s.size(); i++){
+            if(st.empty()){
+                st.push(s[i]);
+                continue;
+            }
+            while(!st.empty() && i < s.size() && st.top() == s[i]){
+                st.pop();
+                i++;
+            }
+            // 不加这一行判断，在处理aaaaaa这种用例时会将s外的未知内存中的值加入到st中
+            if(i < s.size()){
+                st.push(s[i]);
+            }
+        }
+        string res = "";
+        while(!st.empty()){
+            res = st.top() + res;
+            st.pop();
+        }
+        return res;
+    }
+};
+```
+
+改进方法——
+string STL也提供了push_back，pop_back，back等函数
+
+```CPP
+class Solution {
+public:
+    string removeDuplicates(string s) {
+        string stk;
+        for(char c : s){
+            if(!stk.empty() and stk.back() == c){
+                stk.pop_back();
+            }else{
+                stk.push_back(c);
+            }
+        }
+        return stk;
+    }
+};
+```
+
+

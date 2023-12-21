@@ -45,31 +45,125 @@ public:
 
 ```CPP
 class MyStack {
+    queue<int> qin;
+    queue<int> qout;
 public:
-    queue<int> q1;
-    queue<int> q2;
     MyStack() {
     }
     void push(int x) {
-        q2.push(x);
-        while(!q1.empty()){
-            q2.push(q1.front());
-            q1.pop();
+        qin.push(x);
+        while(!qout.empty()){
+            qin.push(qout.front());
+            qout.pop();
         }
-        swap(q1,q2);
+        swap(qin,qout);
     }
     int pop() {
-        int item = q1.front();
-        q1.pop();
-        return item;   
+        int res = qout.front();
+        qout.pop();
+        return res;
     }
     int top() {
-        return q1.front();
+        return qout.front();
     }
     bool empty() {
-        return q1.empty();
+        return qin.empty() && qout.empty();
+    }   
+};
+```
+一个队列的方法。
+
+## 20 有效的括号
+
+4ms？还有更快速度的方法。
+```CPP
+class Solution {
+public:
+    bool isValid(string s) {
+        stack<char> st;
+        for(auto item : s){
+            if(st.empty()){
+                st.push(item);
+                continue;
+            }
+            if(st.top() == '(' and item == ')'){
+                st.pop();
+                continue;
+            }else if(st.top() == '{' and item == '}'){
+                st.pop();
+                continue;
+            }else if(st.top() == '[' and item == ']'){
+                 st.pop();
+                 continue;
+            }else {
+                st.push(item);
+            }
+        }
+        if(st.empty()){
+            return true;
+        }
+        return false;
     }
 };
 ```
 
-一个队列的方法。
+## 150 逆波兰表达式求值
+16 ms 24.40%， 时间复杂度很高，方法不快
+注：C++11 string STL提供了stoi函数，可以直接将string转换为int，不需要自己写str2num函数。
+
+```CPP
+int str2num(string str1){
+    int res = 0;
+    int level = 0;
+    while(!str1.empty()){
+        if(str1.back() != '-'){
+            res += (str1.back() - '0') * pow(10,level);
+            level++;
+            str1.pop_back();
+        }else{
+            res = -res;
+            str1.pop_back();
+        }
+    }
+    return res;
+}
+int evalRPN(vector<string>& tokens) {
+    stack<int> res;
+    for(auto n : tokens){
+        if(n != "+" && n != "-" && n != "*" && n != "/"){
+            res.push(str2num(n));
+            continue;
+        }
+        if( n == "+" ){
+            int n2 = res.top();
+            res.pop();
+            int n1 = res.top();
+            res.pop();
+            res.push(n1 + n2);
+        }
+        if( n == "-" ){
+            int n2 = res.top();
+            res.pop();
+            int n1 = res.top();
+            res.pop();
+            res.push(n1 - n2);
+        }
+        if( n == "*" ){
+            int n2 = res.top();
+            res.pop();
+            int n1 = res.top();
+            res.pop();
+            res.push(n1 * n2);
+        }
+        if( n == "/" ){
+            int n2 = res.top();
+            res.pop();
+            int n1 = res.top();
+            res.pop();
+            res.push(n1 / n2);
+        }
+    }
+    return res.top();
+}
+```
+
