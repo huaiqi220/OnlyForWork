@@ -109,7 +109,9 @@ public:
 
 ## 150 逆波兰表达式求值
 16 ms 24.40%， 时间复杂度很高，方法不快
-注：C++11 string STL提供了stoi函数，可以直接将string转换为int，不需要自己写str2num函数。
+注：C++11 string STL提供了stoi函数，可以直接将string转换为int
+
+使用数组代替stack应该能提速
 
 ```CPP
 int str2num(string str1){

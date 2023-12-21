@@ -27,6 +27,127 @@
         }
         return nullptr;
     }
-
-
 ```
+
+## 144 二叉树的前序遍历
+
+迭代是以前写二叉树时候练习的少的方法，主要是用一个栈，用一个node结点，然后再适当的时候
+
+stk.pop() and node = node->right
+
+```CPP
+// 递归
+void preorderTraversal(TreeNode* root, vector<int>& res){
+    if(root == nullptr)return;
+    res.push_back(root->val);
+    preorderTraversal(root->left,res);
+    preorderTraversal(root->right,res);
+}
+
+// 迭代
+vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> res;
+    if(root == nullptr)return res;
+    stack<TreeNode*> stk;
+    TreeNode* node = root;
+    while(!stk.empty() || node != nullptr){
+        while(node != nullptr){
+            res.emplace_back(node->val);
+            stk.emplace(node);
+            node = node->left;
+        }
+        node = stk.top();
+        stk.pop();
+        node = node->right;
+    }
+    return res;
+}
+```
+
+
+## 145 二叉树的后序遍历
+
+递归方法就不在这写了，写的比较多，主要写迭代方法
+
+为了实现这一逻辑，使用了 prev 变量来追踪上一个被访问的节点。具体来说，当栈顶节点的右子树为空或者已经访问过（即 root->right == nullptr || root->right == prev），就可以安全地访问当前节点，然后将 prev 设置为当前节点，将 root 设为 nullptr，以确保下一步能够正确处理栈顶的节点。
+
+
+```CPP
+vector<int> postorderTraversal(TreeNode *root) {
+    vector<int> res;
+    if (root == nullptr) {
+        return res;
+    }
+    stack<TreeNode *> stk;
+    TreeNode *prev = nullptr;
+    while (root != nullptr || !stk.empty()) {
+        while (root != nullptr) {
+            stk.emplace(root);
+            root = root->left;
+        }
+        root = stk.top();
+        stk.pop();
+        // 主要就是理解这一步，后序遍历只有右节点空或者右节点已经遍历情况下再访问根节点。
+        if (root->right == nullptr || root->right == prev) {
+            res.emplace_back(root->val);
+            prev = root;
+            root = nullptr;
+        } else {
+            stk.emplace(root);
+            root = root->right;
+        }
+    }
+    return res;
+}
+```
+
+## 94 二叉树中序遍历
+
+```CPP
+vector<int> inorderTraversal(TreeNode* root) {
+    vector<int> res;
+    stack<TreeNode*> stk;
+    while(root != nullptr || !stk.empty()){
+        while(root != nullptr){
+            stk.push(root);
+            root = root->left;
+        }
+        root = stk.top();
+        stk.pop();
+        res.push_back(root->val);
+        root = root->right;
+    }
+    return res;
+}
+```
+
+## 102 层序遍历 && 107 层序遍历II
+
+自己写了一版，不太优雅，还有空指针的错误，排查了一小会，
+在这记录下标准的模板。
+
+```CPP
+vector<vector<int>> levelOrder(TreeNode* root) {
+    vector<vector<int>> res;
+    if(root == nullptr) return res;
+    queue<TreeNode*> q;
+    q.push(root);
+    while(!q.empty()){
+        int lsize = q.size();
+        res.push_back(vector<int>());
+        for(int i = 0 ; i < lsize; i++){
+            auto node = q.front();q.pop();
+            res.back().push_back(node->val);
+            if(node->left != nullptr)q.push(node->left);
+            if(node->right != nullptr)q.push(node->right);
+        }
+    }
+    return res;
+}   
+// 其实跟我写的也没太大区别，有一点点区别就是可以用lsize记录当前层有多少个元素，就不用先把nextl记录到宁外的vector最后再填到queue里
+```
+
+## 199 二叉树的右视图
+
+
+
