@@ -233,8 +233,43 @@ Node* connect(Node* root) {
 
 ## 104 二叉树的最大深度
 
-// 没精力接着写了，今天先到这
+直接层序遍历，然后查看res矩阵的size，这是一种方法，或者回溯给一个参数level，level++与ans取大，也是一种方法。
 
+```CPP
+// 回溯取大  8ms
+int maxDepth(TreeNode* root) {
+    int ans = 0;
+    backTracking(root,ans,1);
+    return ans;
+}
+void backTracking(TreeNode* root, int& ans, int level){
+    if(root == nullptr) return;
+    if(root != nullptr){
+        ans = level > ans ? level : ans;
+    }
+    backTracking(root->left,ans,level + 1);
+    backTracking(root->right,ans,level + 1);
+}
+// 层序遍历取res的size  12ms
+int maxDepth(TreeNode* root) {
+    vector<vector<int>> res;
+    if(root == nullptr) return 0;
+    queue<TreeNode*> q;
+    q.push(root);
+    while(!q.empty()){
+        int lsize = q.size();
+        res.push_back(vector<int>());
+        for(int i = 0; i < lsize; i++){
+            TreeNode* node = q.front();
+            q.pop();
+            if(node->left)q.push(node->left);
+            if(node->right)q.push(node->right);
+            res.back().push_back(node->val);
+        }
+    }
+    return res.size();
+}
+```
 
 
 
