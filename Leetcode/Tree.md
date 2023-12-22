@@ -292,6 +292,22 @@ void backTracking(TreeNode* root, int& ans, int level){
 
 ```
 
+## 226 翻转二叉树
+递归秒了
+```CPP
+TreeNode* invertTree(TreeNode* root) {
+    if(root == nullptr) return nullptr;
+    if(root != nullptr){
+        TreeNode* l = root->left;
+        root->left = root->right;
+        root->right = l;
+        invertTree(root->left);
+        invertTree(root->right);
+    }
+    return root;
+}
+```
+
 
 
 
