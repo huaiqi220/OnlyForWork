@@ -308,7 +308,62 @@ TreeNode* invertTree(TreeNode* root) {
 }
 ```
 
+## 222 完全二叉树节点个数
 
 
+
+1. 层序遍历计数，时间复杂度超过11.61%的人，代码就不放在这了。
+
+能不能根据最大深度和最后一层个数直接算出节点有多少个？
+
+2. 直接递归计算左右子树个数，虽然复杂度很高，但是个很易读的方法
+```CPP
+// 比层次遍历快，可能层次遍历涉及太多不必要的计算，什么Push，for
+int countNodes(TreeNode* root) {
+    if(root == nullptr)return 0;
+    int left = countNodes(root->left);
+    int right = countNodes(root->right);
+    return left + right + 1;
+}
+```
+3. 位运算与二分查找，代码比较长，面试也难写出来，不放在这了
+
+
+## 110 平衡二叉树
+
+这是我第一次写出的代码，两次递归，做了大量重复计算。
+```CPP
+bool isBalanced(TreeNode* root) {
+    if(root == nullptr) return true;
+    if(isBalanced(root->left) and isBalanced(root->right) and abs(getLevel(root->left) - getLevel(root->right)) <=1){
+        return true;
+    }
+    return false;
+}
+
+int getLevel(TreeNode* root){
+    int ans = 0;
+    if(root == nullptr)return ans;
+    return max(getLevel(root->left),getLevel(root->right)) + 1;
+}
+```
+
+这是把平衡与深度写在一个递归函数里的优化方法
+
+```CPP
+bool isBalanced(TreeNode* root) {
+    return getHeight(root)>= 0;
+}
+int getHeight(TreeNode* root){
+    int ans = 0;
+    if(root == nullptr)return ans;
+    int lefth = getHeight(root->left);
+    int righth = getHeight(root->right);
+    if(lefth == -1 || righth == -1|| abs(lefth - righth) > 1){
+        return -1;
+    }
+    return max(lefth,righth) + 1;
+}
+```
 
 
