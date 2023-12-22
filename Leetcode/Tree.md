@@ -271,7 +271,26 @@ int maxDepth(TreeNode* root) {
 }
 ```
 
+## 111 二叉树的最小深度
+思路就是在104最大深度的level实现基础上，把ans赋值算法改成小于号，同时必须叶子节点才有权改动ans。速度不是特别快
 
+```CPP
+int minDepth(TreeNode* root) {
+    int ans = 1000000;
+    if(root == nullptr) return 0;
+    backTracking(root,ans,1);
+    return ans;
+}
+void backTracking(TreeNode* root, int& ans, int level){
+    if(root == nullptr) return;
+    if(root != nullptr and root->left == nullptr and root->right == nullptr){
+        ans = level < ans ? level : ans;
+    }
+    backTracking(root->left,ans,level + 1);
+    backTracking(root->right,ans,level + 1);
+}
+
+```
 
 
 
