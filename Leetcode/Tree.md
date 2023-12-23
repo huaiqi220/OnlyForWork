@@ -61,7 +61,6 @@ void preorderTraversal(TreeNode* root, vector<int>& res){
     preorderTraversal(root->left,res);
     preorderTraversal(root->right,res);
 }
-
 // 迭代
 vector<int> preorderTraversal(TreeNode* root) {
     vector<int> res;
@@ -366,4 +365,195 @@ int getHeight(TreeNode* root){
 }
 ```
 
+## 257 二叉树的所有路径
 
+递归一下就实现了，如果把path设置成&的话，就必须push 之后pop
+
+但其实这个题具体来说，直接传值也可以，就不需要每次都pop
+
+```CPP
+vector<string> binaryTreePaths(TreeNode* root) {
+    vector<string> res;
+    string curStr;
+    backTracking(root,curStr,res);
+    return res;
+}
+void backTracking(TreeNode* root,string curStr,vector<string>& res){
+    if(root == nullptr) return;
+    if(root->left == nullptr and root->right == nullptr) {
+        curStr += to_string(root->val);
+        res.push_back(curStr);
+        return;
+    }
+    if(root->left){
+        string ltemp = curStr + to_string(root->val);
+        ltemp += "->";
+        backTracking(root->left,ltemp,res);
+    }
+    if(root->right){
+        string rtemp = curStr + to_string(root->val);
+        rtemp += "->";
+        backTracking(root->right,rtemp,res);
+    }
+    return;
+}
+```
+
+## 404 左叶子之和
+
+递归秒了
+
+```CPP
+int sumOfLeftLeaves(TreeNode* root) {
+    int ans = 0;
+    backTracking(root,0,ans);
+    return ans;
+}
+void backTracking(TreeNode* root,int mark,int& ans){
+    if(root == nullptr) return;
+    if(root->left == nullptr and root->right == nullptr and mark == 1){
+        ans += root->val;
+    }
+    backTracking(root->left,1,ans);
+    backTracking(root->right,0,ans);
+}
+```
+
+迭代
+```CPP
+int sumOfLeftLeaves(TreeNode* root) {
+    int ans = 0;
+    if(root == nullptr) return ans;
+    stack<TreeNode*> stk;
+    stk.push(root);
+    while(!stk.empty()){
+        TreeNode* root = stk.top();
+        stk.pop();
+        if(root->left and !root->left->left and !root->left->right){
+            ans += root->left->val;
+        }
+        if(root->left) stk.push(root->left);
+        if(root->right) stk.push(root->right);
+    }
+    return ans;
+}
+```
+
+## 513 找树左下角的值
+
+层序遍历的方法就不写在这了 12ms 63%
+
+正确思路——根左右这么来搜索，第一个level最大的节点一定是最左边的结点。 12ms 64%
+
+```CPP
+    int findBottomLeftValue(TreeNode* root) {
+        int ans = 0;
+        int maxlevel = 0;
+        backTracking(root,1,maxlevel,ans);
+        return ans;
+    }
+    void backTracking(TreeNode* root,int level,int& maxlevel,int& ans){
+        if(root == nullptr) return;
+        if(level > maxlevel){
+            maxlevel = level;
+            ans = root->val;
+        }
+        backTracking(root->left,level + 1,maxlevel,ans);
+        backTracking(root->right,level + 1,maxlevel,ans);
+    }
+```
+
+## 106 从中序与后序遍历序列构造二叉树
+
+使用递归，后序遍历的最后一个节点一定是根节点，根据这个信息切割中序后序的左右子树序列，然后递归调用
+
+这题想到递归就非常简单，但在分割左右子树的细节上就比较困难，容易出错。
+
+```CPP
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        int n = inorder.size();
+        return buildTreeHelper(inorder, postorder, 0, n - 1, 0, n - 1);
+    }
+    TreeNode* buildTreeHelper(vector<int>& inorder, vector<int>& postorder, int inorderstart, int inorderend, int postorderstart, int postorderend) {
+        if (inorderstart > inorderend) return nullptr;
+        int rootval = postorder[postorderend];
+        TreeNode* node = new TreeNode(rootval);
+        int inorderindex = distance(inorder.begin(), find(inorder.begin(), inorder.end(), rootval));
+        int rightSubtreeSize = inorderend - inorderindex;
+        node->left = buildTreeHelper(inorder, postorder, inorderstart, inorderindex - 1, postorderstart, postorderend - rightSubtreeSize - 1);
+        node->right = buildTreeHelper(inorder, postorder, inorderindex + 1, inorderend, postorderend - rightSubtreeSize, postorderend - 1);
+        return node;
+    }
+```
+
+## 654 最大二叉树
+
+跟上面的中后序构造二叉树一个题目，区别就是本题找左右序列要方便一点。
+
+```CPP
+TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+    if(nums.size() == 0) return nullptr;
+    vector<int>::iterator mi = max_element(nums.begin(),nums.end());
+    int maxi = distance(nums.begin(),mi);
+    vector<int> left(nums.begin(),nums.begin() + maxi);
+    vector<int> right(nums.begin()+ maxi + 1,nums.end());
+    TreeNode* node = new TreeNode(*mi);
+    node->left = constructMaximumBinaryTree(left);
+    node->right = constructMaximumBinaryTree(right);
+    return node;
+}
+```
+
+```CPP
+// 迭代，单调栈
+TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+    if(nums.empty()) return nullptr;
+    vector<TreeNode*> stack;
+    for(int i = 0; i < nums.size(); i++) {
+        TreeNode* node = new TreeNode(nums[i]);
+        while(!stack.empty() && stack.back()->val < nums[i]) {
+            node->left = stack.back();
+            stack.pop_back();
+        }
+        if(!stack.empty()) {
+            stack.back()->right = node;
+        }
+        stack.push_back(node);
+    }
+    return stack.front();
+}
+```
+
+## 700 二叉搜索树中的搜索
+
+```CPP
+// 递归秒了，改迭代
+TreeNode* searchBST(TreeNode* root, int val) {
+    if(root->val == val)return root;
+    if(root->val < val and root->right == nullptr) return nullptr;
+    if(root->val > val and root->left == nullptr) return nullptr;
+    if(root->val < val){
+        return searchBST(root->right,val);
+    }
+    if(root->val > val){
+        return searchBST(root->left,val);
+    }
+    return nullptr;
+}
+```
+
+```CPP
+// 写的还可以继续优化，总的来说就是，用一个栈，来模拟程序调用栈
+TreeNode* searchBST(TreeNode* root, int val) {
+    stack<TreeNode*> stk;
+    stk.push(root);
+    while(!stk.empty()){
+        TreeNode* node = stk.top();
+        stk.pop();
+        if(node->val == val)return node;
+        if(node->val > val and node->left != nullptr) stk.push(node->left);
+        if(node->val < val and node->right != nullptr ) stk.push(node->right);
+    }
+    return nullptr;
+}
+```
