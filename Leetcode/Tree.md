@@ -606,6 +606,7 @@ bool backTracking(TreeNode* root,long max, long min){
 
 ```CPP
 // 中序遍历迭代递增
+// 8 ms 88.74%
 bool isValidBST(TreeNode* root) {
     long curMIN = LONG_MIN;
     stack<TreeNode*> stk;
@@ -630,4 +631,48 @@ bool isValidBST(TreeNode* root) {
     return true;
 }
 // 二叉树前中后序迭代怎么写别忘了
+```
+
+## 530 二叉搜索树的最小绝对差
+呃，到手拿着就做，做了个最大差值
+```CPP
+    int getMinimumDifference(TreeNode* root) {
+        TreeNode* node = root;
+        int min = root->val;
+        int max = root->val;
+        while(root!= nullptr){
+            min = root->val < min ? root-> val : min;
+            root = root->left;
+        }
+        while(node != nullptr){
+            max = node->val > max ? node->val : max;
+            node = node->right;
+        }
+        return abs(max - min);
+    }
+```
+最小差值就，中序遍历吧，然后后减去前，应该是这样
+```CPP
+int getMinimumDifference(TreeNode* root) {
+    stack<TreeNode*> stk;
+    int curMin = 100000;
+    int mindif = 100000;
+    while(!stk.empty() || root != nullptr){
+        while(root != nullptr){
+            stk.push(root);
+            root = root->left;
+        }
+        root = stk.top();
+        stk.pop();
+        int curdif = abs(root->val - curMin);
+        mindif = mindif > curdif ? curdif : mindif;
+        curMin = root->val;
+        if(root->right){
+            root = root->right;
+        }else{
+            root = nullptr;
+        }
+    }
+    return mindif;
+}
 ```

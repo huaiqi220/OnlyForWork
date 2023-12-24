@@ -202,5 +202,13 @@ ListNode* swapPairs(ListNode* head) {
 
 2. head->next = nullptr;
 
+## LCR 078 合并K个升序链表
+
+k个取小，指针进一，超过5.21%
+
+前置题目，合并两个升序链表
+
+
+
 
 
