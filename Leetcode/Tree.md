@@ -552,8 +552,82 @@ TreeNode* searchBST(TreeNode* root, int val) {
         stk.pop();
         if(node->val == val)return node;
         if(node->val > val and node->left != nullptr) stk.push(node->left);
-        if(node->val < val and node->right != nullptr ) stk.push(node->right);
+        if(node->val < val and node->right != nullptr ) stk.push(node->right);!
     }
     return nullptr;
 }
+```
+
+## 617 合并二叉树
+
+经典的递归方法
+```CPP
+TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+    if(root1 == nullptr and root2 == nullptr) return nullptr;
+    if(root1 and root2){
+        root1->val = root1->val + root2->val;
+        root1->left = mergeTrees(root1->left,root2->left);
+        root1->right = mergeTrees(root1->right,root2->right);
+        return root1;
+    }
+    if(root1 and root2 == nullptr){
+        return root1;
+    }
+    if(root1 == nullptr and root2){
+        return root2;
+    }
+    return nullptr;
+}
+```
+
+## 98 验证二叉搜索树
+
+递归回溯时候传递判断条件，一个上界MAX和一个下界MIN，对于root节点，MIN为 LONG_MIN，MAX为 LONG_MAX
+
+```CPP
+bool isValidBST(TreeNode* root) {
+    return backTracking(root,LONG_MAX,LONG_MIN);
+}
+bool backTracking(TreeNode* root,long max, long min){
+    if(root == nullptr) return true;
+    if(root->val < min || root->val > max) return false;
+    if(root->val > min && root->val < max){
+        if(backTracking(root->left,root->val,min) and backTracking(root->right,max,root->val)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    return false;
+}
+```
+
+试试改迭代，现在遇到树问题，第一时间递归都改迭代试试能不能做
+
+```CPP
+// 中序遍历迭代递增
+bool isValidBST(TreeNode* root) {
+    long curMIN = LONG_MIN;
+    stack<TreeNode*> stk;
+    while(!stk.empty() || root != nullptr){
+        while(root != nullptr){
+            stk.push(root);
+            root = root->left;
+        }
+        root = stk.top();
+        stk.pop();
+        if(root->val <= curMIN){
+            return false;
+        }else{
+            curMIN = root->val;
+        }
+        if(root->right){
+            root = root->right;
+        }else{
+            root = nullptr;
+        }
+    }
+    return true;
+}
+// 二叉树前中后序迭代怎么写别忘了
 ```
