@@ -676,3 +676,170 @@ int getMinimumDifference(TreeNode* root) {
     return mindif;
 }
 ```
+
+## 501 二叉树中的众数
+
+第一次做，层序遍历加map + 转化为vector + 排序 + 输出结果。时间复杂度很高。
+
+```CPP
+    // 这次用了个O(1)的方法，也是官方题解的方法，16ms 77.35%，其实也没快太多
+    void updateRes(vector<int>& res,int val,int& curNum,int& curCount,int& maxCount){
+        if(val == curNum){
+            curCount++;
+            return;
+        }
+        if(val != curNum){
+            if(curCount == 0){
+                curNum = val;
+                curCount = 1;
+            }else{
+                if(curCount > maxCount){
+                    maxCount = curCount;
+                    res.clear();
+                    res.push_back(curNum);
+                    curNum = val;
+                    curCount = 1;
+                }else if(curCount == maxCount){
+                    res.push_back(curNum);
+                    curNum = val;
+                    curCount = 1;                    
+                }else {
+                    curNum = val;
+                    curCount = 1;                    
+                }
+            }
+        }
+    }
+    vector<int> findMode(TreeNode* root) {
+        stack<TreeNode*> stk;
+        int curNum = 100001;
+        int curCount = 0;
+        int maxCount = 0;
+        vector<int> res;
+        while(!stk.empty() || root != nullptr){
+            while(root != nullptr){
+                stk.push(root);
+                root = root->left;
+            }
+            root = stk.top();
+            stk.pop();
+            int val = root->val;
+            updateRes(res,val,curNum,curCount,maxCount);
+            if(root->right){
+                root = root->right;
+            }else{
+                root = nullptr;
+            }
+        }
+        updateRes(res,1000002,curNum,curCount,maxCount);
+        return res;
+    }
+```
+
+## 235 二叉搜索树的最近公共祖先
+
+这是个中等题，如果是一个一般的二叉树，搜索最近公共祖先比较麻烦，而对于二叉树，就可以利用二叉树左 < 根 < 右的特点。
+```CPP
+// 24ms 91%
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if(root == nullptr) return nullptr;
+    if(p->val < root->val and q->val < root->val) return lowestCommonAncestor(root->left,p,q);
+    if(p->val > root->val and q->val > root->val) return lowestCommonAncestor(root->right,p,q);
+    if(p->val <= root->val and q->val >= root->val) return root;
+    if(p->val >= root->val and q->val <= root->val) return root;
+    return nullptr;
+}
+```
+换迭代法做一下
+```CPP
+// 差不多的做法
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    stack<TreeNode*> stk;
+    stk.push(root);
+    while(!stk.empty()){
+        TreeNode* root = stk.top();
+        stk.pop();
+        if(root == nullptr) return nullptr;
+        if(p->val < root->val and q->val < root->val) stk.push(root->left);
+        if(p->val > root->val and q->val > root->val) stk.push(root->right);
+        if(p->val <= root->val and q->val >= root->val) return root;
+        if(p->val >= root->val and q->val <= root->val) return root;
+    }
+    return nullptr;
+}
+```
+
+## 236 二叉树的最近公共祖先
+
+跟235的区别是现在不是二叉搜索树了，节点之间没什么联系和关系
+
+必须进行搜索
+
+后续遍历就是DFS，后续遍历使用递归实现比较简单，第一版本我的代码使用int作为backTracking返回值
+
+实际返回node更直观
+
+```CPP
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    return backTracking(root, p, q);
+}
+// 这代码我读了两遍才读懂，要背住，或者自己重新用迭代方法实现一下。
+TreeNode* backTracking(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root == nullptr) return nullptr;
+    if (root == p || root == q) {
+        return root;
+    }
+    TreeNode* left = backTracking(root->left, p, q);
+    TreeNode* right = backTracking(root->right, p, q);
+    if (left && right) {
+        // 节点 p 和 q 在不同的子树中，根节点是LCA。
+        return root;
+    }
+    // 如果一个子树为空，则返回非空子树（潜在的LCA）。
+    return (left != nullptr) ? left : right;
+}
+```
+
+## 701 二叉搜索树中的插入操作
+
+如果不需要确保二叉树平衡的情况下，这个插入其实是非常简单的
+
+递归找到需要插入的位置，然后new结点，设置指针就行了。但如果想要确保二叉树平衡，就需要考虑旋转了。
+
+```CPP
+TreeNode* insertIntoBST(TreeNode* root, int val) {
+    if(root == nullptr) return new TreeNode(val);
+    stack<TreeNode*> stk;
+    stk.push(root);
+    while(!stk.empty()){
+        TreeNode* node = stk.top();
+        if(val < node->val){
+            if(node->left){
+                stk.push(node->left);
+            }else{
+                node->left = new TreeNode(val);
+                break;
+            }
+        }else{
+            if(node->right){
+                stk.push(node->right);
+            }else{
+                node->right = new TreeNode(val);
+                break;
+            }                
+        }
+    }
+    return root;
+}
+```
+
+## 450 删除二叉搜索树中的节点
+
+写了个把小时没整明白，思路是很清晰的，把左子树接到右子树的最左边。
+
+但代码实现起来非常繁琐复杂， 写了有四五十行。
+
+随想录介绍了这题的正确解法和一种普通二叉树的通用删除方法。
+```CPP
+
+```
