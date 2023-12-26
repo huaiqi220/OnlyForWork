@@ -54,3 +54,31 @@ ActorComponent不带有空间上的关系，所以不具有世界坐标。如移
     - 关卡蓝图只有一个，逻辑多了会越来越复杂。
 - 适合demo，新手村
 - 适合一些关卡本身的触发机械互动
+
+### APawn 演员
+- 一个可以被控制的Actor
+- 逻辑足够复杂就要MVC设计
+  - APawn相比Actor足够复杂，比较关键的就是有控制器的APawn
+  
+- 肉体
+  - Pawn Controller state三者关系，Pawn像是肉体、机甲，而应该把hp、mp、攻击力、防御力等属性放到State里面，这样Controller控制另外一个Pawn，好比如从Character切换到另外固定机枪等等，同样可以获取到状态。
+- 人形角色
+
+### AController && APlayerState
+- Controller是控制别的Actor的Actor，本身不带位置，类似于“灵魂”，重点在于逻辑
+- 灵魂
+- 肉体状态
+- 抽离开是为了联机复制
+  - 在联机的时候，单独的把state复制到客户端上去。
+
+### APlayerController && AAIController
+- 主角的灵魂
+- 和玩家沟通的渠道
+  - 玩家和游戏联系的通道，就是通过PlayerController扩散到别的Actor上去。
+- 写最多的是输入内容，或者一些Camera，跟玩家直接交互的内容
+
+- AI的灵魂
+- 行为树功能强大
+- 黑板共享数据
+- AI感知
+- EQS环境查询
