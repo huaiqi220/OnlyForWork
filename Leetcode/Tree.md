@@ -843,3 +843,141 @@ TreeNode* insertIntoBST(TreeNode* root, int val) {
 ```CPP
 
 ```
+
+
+## 669 修剪二叉搜索树
+
+一开始打算手动模拟，先找到在low 和high之间的root结点，然后在往左找，往右找，巴拉巴拉，太复杂，可以直接递归思路来做。
+
+
+```CPP
+// 递归写法就是这么简洁
+TreeNode* trimBST(TreeNode* root, int low, int high) {
+    if(root == nullptr) return nullptr;
+    if(root->val > high){
+        return trimBST(root->left,low,high);
+    }else if(root->val < low){
+        return trimBST(root->right,low,high);
+    }else{
+        root->left = trimBST(root->left,low,high);
+        root->right = trimBST(root->right,low,high);
+        return root;
+    }
+    return nullptr;
+}
+```
+迭代写法，这个迭代写法for循环写的非常精妙，比起我while循环,parent left种种好多了
+```CPP
+TreeNode* trimBST(TreeNode* root, int low, int high) {
+    while(root && (root->val < low || root->val > high)){
+        if(root->val < low){
+            root = root->right;
+        }else{
+            root = root->left;
+        }
+    }
+    if(root == nullptr){
+        return nullptr;
+    }
+    for(auto node = root; node->left;){
+        if(node->left->val < low){
+            node->left = node->left->right;
+        } else {
+            node = node->left;
+        }
+    }
+    for (auto node = root; node->right; ) {
+        if (node->right->val > high) {
+            node->right = node->right->left;
+        } else {
+            node = node->right;
+        }
+    }
+    return root;      
+}
+```
+
+## 108 有序数组转换为二叉搜索树
+
+二叉搜索树的中序遍历就是递增数组。感觉这题目递归写法比较好做
+
+```CPP
+// 跟二分查找差不多，需要判断left <= right
+TreeNode* sortedArrayToBST(vector<int>& nums) {
+    return sortedArrayToBST(nums,0,nums.size()- 1);
+}
+TreeNode* sortedArrayToBST(vector<int>& nums,int left,int right) {
+    if(left > right)return nullptr;
+    if(left <= right){
+        int middle  = left + (right - left) / 2;
+        TreeNode* root = new TreeNode(nums[middle]);
+        root->left = sortedArrayToBST(nums,left,middle - 1);
+        root->right = sortedArrayToBST(nums,middle + 1,right);
+        return root;
+    }
+    return nullptr;
+}
+```
+
+## 538 把二叉搜索树转换为累加树
+
+二叉树最后一题，加油
+
+第一种做法，迭代的层序遍历到vector，vector处理节点的值 40ms 20.57%
+
+```CPP
+TreeNode* convertBST(TreeNode* root) {
+    vector<TreeNode*> temp;
+    stack<TreeNode*> stk;
+    TreeNode* nroot = root;
+    while(!stk.empty() || root != nullptr){
+        while(root != nullptr){
+            stk.push(root);
+            root = root->left;
+        }
+        root = stk.top();
+        stk.pop();
+        temp.push_back(root);
+        if(root->right){
+            root = root->right;
+        }else{
+            root = nullptr;
+        }
+    }
+    int count = 0;
+    for(int i = temp.size() - 1; i>=0;i--){
+        count += temp[i]->val;
+        temp[i]->val = count;
+    }
+    return nroot;
+}
+```
+
+第二种做法，直接右根左遍历，count += root->val, root->val = count  36ms 40.06%
+```CPP
+TreeNode* convertBST(TreeNode* root) {
+    int count = 0;
+    stack<TreeNode*> stk;
+    TreeNode* nroot = root;
+    while(!stk.empty() || root != nullptr){
+        while(root != nullptr){
+            stk.push(root);
+            root = root->right;
+        }
+        root = stk.top();
+        stk.pop();
+        count += root->val;
+        root->val = count;
+        if(root->left){
+            root = root->left;
+        }else{
+            root = nullptr;
+        }
+    }
+    return nroot;
+}
+```
+
+## 随想录二叉树算法部分完结✨✨✨🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
+
+
