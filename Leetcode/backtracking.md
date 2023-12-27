@@ -292,3 +292,121 @@ public:
     }
 };
 ```
+
+
+## 46 全排列
+
+
+这题做出来不难，但怎么处理某个元素已经被选取，这个比较困难，因为排列必然代表无序，我的第一个做法是，选了某个数，就把某个数从vector里直接erase，回溯完回来添加的时候就Insert,这两步操作对于vector来说都是非常费的
+
+```CPP
+vector<vector<int>> permute(vector<int>& nums) {
+    backTracking(nums);
+    return res;
+}
+void backTracking(vector<int>& nums){
+    if(nums.size() == 0){
+        res.push_back(temp);
+        return;
+    }
+    for(int i = 0; i < nums.size();i++){
+        temp.push_back(nums[i]);
+        int copy = nums[i];
+        nums.erase(nums.begin() + i);
+        backTracking(nums);
+        nums.insert(nums.begin() + i,copy);
+        temp.pop_back();
+    }
+}
+```
+我设想使用list，使用deque，都不好满足在指定位置重新插入元素这个目的，其实只用创建一个记录数组used就行
+```CPP
+std::vector<std::vector<int>> res;
+std::vector<int> temp;
+std::vector<bool> used;  // 新增用于标记元素是否已使用的数组
+std::vector<std::vector<int>> permute(std::vector<int>& nums) {
+    used.resize(nums.size(), false);
+    backTracking(nums);
+    return res;
+}
+void backTracking(std::vector<int>& nums) {
+    if (temp.size() == nums.size()) {
+        res.push_back(temp);
+        return;
+    }
+    for (int i = 0; i < nums.size(); ++i) {
+        if (!used[i]) {
+            temp.push_back(nums[i]);
+            used[i] = true;
+            backTracking(nums);
+            temp.pop_back();
+            used[i] = false;
+        }
+    }
+}
+```
+
+## 47 全排列II
+**有重复数字**
+直接按46做，最后去重，击败5%
+
+用了一个unordered_map，控制for中不要选取相同数值的数，击败20%,也不是特别快
+```CPP
+vector<vector<int>> res;
+vector<int> temp;
+vector<bool> used;
+vector<vector<int>> permuteUnique(vector<int>& nums) {
+    used = vector<bool>(nums.size(),false);
+    backTracking(nums);
+    return res;
+}
+void backTracking(vector<int>& nums){
+    if(temp.size() == nums.size()){
+        res.push_back(temp);
+        return;
+    }
+    unordered_map<int,int> map;
+    for(int i =0;i < nums.size();i++){
+        if(!used[i] and map[nums[i]]  == 0){
+            map[nums[i]] = 1;
+            used[i] = true;
+            temp.push_back(nums[i]);
+            backTracking(nums);
+            temp.pop_back();
+            used[i] = false;
+        }
+    }
+}
+```
+还有一种思路，sort之后，相同的元素一定相邻，不能选择跟前一个元素相同的元素，
+因为在排列，所有元素都会被取到的情况下， 111xxxx，先取哪个1其实是一个结果。所以直接剪枝。
+```CPP
+vector<vector<int>> res;
+vector<int> temp;
+vector<bool> used;
+vector<vector<int>> permuteUnique(vector<int>& nums) {
+    used = vector<bool>(nums.size(),false);
+    sort(nums.begin(),nums.end());
+    backTracking(nums);
+    return res;
+}
+void backTracking(vector<int>& nums){
+    if(temp.size() == nums.size()){
+        res.push_back(temp);
+        return;
+    }
+    int front = -11;
+    for(int i =0;i < nums.size();i++){
+        if((!used[i] && front == -11) || (!used[i] && front != nums[i])){
+            used[i] = true;
+            temp.push_back(nums[i]);
+            backTracking(nums);
+            temp.pop_back();
+            used[i] = false;
+            front = nums[i];
+        }
+    }
+}
+```
+
+## 332 重新安排行程
