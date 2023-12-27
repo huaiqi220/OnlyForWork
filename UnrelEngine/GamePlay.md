@@ -76,9 +76,80 @@ ActorComponent不带有空间上的关系，所以不具有世界坐标。如移
 - 和玩家沟通的渠道
   - 玩家和游戏联系的通道，就是通过PlayerController扩散到别的Actor上去。
 - 写最多的是输入内容，或者一些Camera，跟玩家直接交互的内容
+- UI写在哪，UI因为与玩家有关，最好写在PlayerController里面,而不要写到GameMode里面，也不要写到关卡蓝图里面。
 
 - AI的灵魂
+  - 什么东西适合写进AIController？
+  - 什么层级写什么层级的东西
+  - HP是关系游戏逻辑的属性，所以应该写到State里面，而不是写到AIController里面。客户端是无法信任的
 - 行为树功能强大
 - 黑板共享数据
 - AI感知
 - EQS环境查询
+
+
+### ULevel 关卡
+
+- Actor的集合
+- World里的一个板块
+- 对应umap
+
+### UWorld 世界
+- Level的集合
+- 运行时真正的Actor集合
+- World可同时存在多个，好比如客户端World和服务端World
+
+### AGameMode && AGameState
+
+- GameMode是关卡的逻辑,是世界的规则
+- 最权威
+
+- GameState是世界状态
+- 通知到各端
+
+### UGameInstance 游戏实例 USaveGame 存档
+
+- 整场游戏的全局实例
+- World的外围管理对象，管理多个世界
+- 跨关卡的逻辑
+
+- 游戏存档
+  - 背包数据写到哪？背包可能会写到PlayerState里面,等保存时再同步存到USaveGame里面。
+- 如何保存游戏过程中动态生成的Actor
+  - Actor本身不会被保存，能保存的是数据，在重新加载场景的时候进行恢复
+
+### USubsystem 子系统
+- 业务逻辑的组件
+- 5个生命周期粒度控制
+- 自动生成对象
+- 托管生命周期
+- 替代Manager类
+
+### 什么逻辑在哪里
+
+- Component： 功能，能力
+- Actor: 个体本身的逻辑
+- APawn -- APlayerController -- APlayerState 主角肉体-灵魂-状态
+- APawn -- AAIController -- AAIState AI肉体-灵魂-状态
+- AAIController -- BehaviorTree -- BlackBoard AI灵魂-行为树-数据
+- AGameMode -- AGameState 游戏规则-游戏状态
+- UGameInstance -- USaveGame 全局游戏实例-游戏存档
+- USubsystem 游戏逻辑组件
+
+### 输入事件在哪里处理？
+
+- 考虑联机扩展
+- APlayerController最优先
+- APawn其次
+- AActorEnableInput
+- 关卡蓝图随便测测
+
+### 联机的角色职责
+
+- 谁在那里
+- 谁复制了
+
+### GamePlay里带Damage好不好
+**不纯粹？**
+- 统一的伤害接口
+- 破碎，游戏逻辑，GAS
