@@ -410,3 +410,49 @@ void backTracking(vector<int>& nums){
 ```
 
 ## 332 重新安排行程
+
+题目没读懂、
+
+## 51 N皇后
+
+一遍过，没啥可说的，这题就是辅助函数需要写两个
+
+```CPP
+class Solution {
+    vector<pair<int,int>> temp;
+    vector<vector<string>> printRes;
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        backTracking(n,0);
+        return printRes;
+    }
+    void backTracking(int n,int idx){
+        if(idx == n){
+            printRes.push_back(getTheStringBox(temp));
+        }
+        for(int i = 0; i < n;i++){
+            if(canPlace(temp,idx,i)){
+                temp.push_back(pair<int,int>({idx,i}));
+                backTracking(n,idx+1);
+                temp.pop_back();
+            }
+        }
+    }
+    bool canPlace(vector<pair<int,int>>& temp,int i,int j){
+        for(auto item : temp){
+            if(item.first == i or item.second == j or (abs(item.first - i) == abs(item.second - j))){
+                return false;
+            }
+        }
+        return true;
+    }
+    vector<string> getTheStringBox(vector<pair<int,int>>& temp){
+        int n = temp.size();
+        vector<string> table(n,string(n,'.'));
+        for(auto item : temp){
+            table[item.first][item.second] = 'Q';
+        }
+        return table;
+    }
+};
+```

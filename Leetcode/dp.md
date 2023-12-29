@@ -48,4 +48,31 @@ int integerBreak(int n) {
     return dp[n];
 }
 ```
+## 96 不同的二叉搜索树
 
+弄清楚DP公式就是神中神，这题第一次看还觉得，卧槽，这怎么整
+
+实际跟树，节点，没任何关系，就是一个排列组合问题
+
+```CPP
+ DP[i] = SUM(j = 0,1,2,...,n-1){DP[j] * DP[i - j - 1]} // DP[0] = 1;
+```
+
+有以下代码, 0ms 100%
+```CPP
+int numTrees(int n) {
+    int cn = n >= 3 ? n : 3;
+    vector<int> dp(cn + 1,0);
+    dp[0] = 1;
+    dp[1] = 1;
+    dp[2] = 2;
+    for(int i = 3;i <= cn; i++){
+        int count = 0;
+        for(int j = 0; j <= i - 1;j++){
+            count += dp[j] * dp[i - j - 1];
+        }
+        dp[i] = count;
+    }
+    return dp[n];
+}
+```
