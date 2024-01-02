@@ -76,3 +76,123 @@ int numTrees(int n) {
     return dp[n];
 }
 ```
+## 416 分割等和子集
+看不出DP原理，直接回溯，超时 O(2^n)
+```CPP
+bool canPartition(vector<int>& nums) {
+    return backTracking(nums,0);
+}
+bool backTracking(vector<int>& nums, int idx){
+    if(idx == nums.size()){
+        if(left == right){
+            return true;
+        }
+        return false;
+    }
+    left += nums[idx];
+    if(backTracking(nums,idx+1)){
+        return true;
+    }
+    left -= nums[idx];
+    right += nums[idx];
+    if(backTracking(nums,idx+1)){
+        return true;
+    }
+    right -= nums[idx];
+    return false;
+}
+```
+将题目视为容量大小为count / 2的背包，认为每个数字的重量为nums[i]，价值为nums[i]，那么就是一个0-1背包问题
+在这里使用了滚动数组，把原始DP的二维dp数组压缩成了一维。经典好题要背住。
+```CPP
+bool canPartition(vector<int>& nums) {
+    int count = 0;
+    for(auto item : nums)count += item;
+    if(count % 2 == 1) return false;
+    int maxRange = count / 2;
+    vector<int> dp(maxRange+ 1,0);
+    for(int i = 0;i < nums.size(); i++){
+        for(int j = maxRange; j >= nums[i]; j--){
+            dp[j] =  max(dp[j], dp[j - nums[i]] + nums[i]);
+        }
+    }
+    if(dp[maxRange] == maxRange) return true;
+    return false;
+}
+```
+
+## 1049 最后一块石头的重量II
+
+这题我做时候，除了回溯，没想到别的办法，其实也是一个背包问题，但我确实没看出来
+
+跟416一样，找一堆数字，使其尽可能逼近count / 2，最后输出count - 2 * dp[maxRange]即可
+
+```CPP
+int lastStoneWeightII(vector<int>& stones) {
+    int count = 0;
+    for(auto item : stones)count += item;
+    int maxRange;
+    maxRange = count / 2;
+    vector<int> dp(maxRange + 1,0);
+    for(int i = 0; i < stones.size(); i++){
+        for(int j = maxRange; j >= stones[i]; j--){
+            dp[j] = max(dp[j], dp[j - stones[i]] + stones[i]);
+        }
+    }
+    return count - 2 * dp[maxRange];
+}
+```
+
+## 494 目标和
+
+方法1：回溯，2040ms，5.01%
+
+方法2：DP，没做出来，抄的，背包DP解决组合问题的模板，要记住这个递推公式
+
+```CPP
+int findTargetSumWays(vector<int>& nums, int target) {
+    int ans = 0;
+    for(auto item : nums) ans += item;
+    if((ans - target) % 2 == 1) return 0;
+    int neg = (ans - target) / 2;
+    if(abs(target) > ans) return 0;
+    vector<int> dp(neg + 1,0);
+    dp[0] = 1;
+    for(int i = 0; i < nums.size();i++){
+        for(int j = neg; j >= nums[i]; j--){
+            dp[j] += dp[j - nums[i]];
+        }
+    }
+    return dp[neg];
+}
+```
+
+## 474 一和零
+
+方法1：回溯，没有意义
+
+方法2：DP，背包问题，两个维度的背包
+
+```CPP
+int findMaxForm(vector<string>& strs, int m, int n) {
+    vector<vector<int>> dp(m + 1,vector<int>(n+1,0));
+    for(string str : strs){
+        int oneNum = 0;
+        int zeroNum = 0;
+        for(char c : str){
+            if(c == '0') zeroNum++;
+            else oneNum++;
+        }
+        for(int i  = m; i >= zeroNum; i--){
+            for(int j = n; j >= oneNum; j--){
+                dp[i][j] = max(dp[i][j],dp[i - zeroNum][j - oneNum] + 1);
+            }
+        }
+    }
+    return dp[m][n];
+}
+```
+## 完全背包理论基础
+
+完全背包与0-1背包问题不同，每种物品可以选择无限件。
+
