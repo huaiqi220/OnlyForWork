@@ -196,3 +196,39 @@ int findMaxForm(vector<string>& strs, int m, int n) {
 
 完全背包与0-1背包问题不同，每种物品可以选择无限件。
 
+## 518 零钱兑换II
+
+方法1：回溯，超时
+```CPP
+int change(int amount, vector<int>& coins) {
+    backTracking(0,0,amount,coins);
+    return res;
+}
+void backTracking(int idx,int count,int amount,vector<int>& coins){
+    if(count == amount){
+        res++;
+        return;
+    }
+    if(count > amount){
+        return;
+    }
+    for(int i = idx;i < coins.size();i++){
+        backTracking(i,count + coins[i],amount,coins);
+    }
+}
+```
+方法2：DP，完全背包问题，跟474一样，只不过这里是求方案数，474是求最大价值
+要理解这个 += 的作用，理解这个一维DP数组背包是怎么计算出结果的
+
+```CPP
+int change(int amount, vector<int>& coins) {
+    vector<int> dp(amount + 1,0);
+    dp[0] = 1;
+    for(int i = 0; i < coins.size(); i++){
+        for(int j = coins[i]; j <= amount; j++ ){
+            dp[j] += dp[j - coins[i]];
+        }
+    }
+    return dp[amount];
+}
+```
