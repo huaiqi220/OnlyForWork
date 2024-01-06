@@ -232,3 +232,79 @@ int change(int amount, vector<int>& coins) {
     return dp[amount];
 }
 ```
+
+## 377 组合总数
+
+跟零钱兑换的区别就是交换了循环的顺序
+这一题还涉及到剪枝，不然有一个用例会溢出
+```CPP
+int combinationSum4(vector<int>& nums, int target) {
+    vector<long> dp(target + 1,0);
+    dp[0] = 1;
+    for(int i = 0; i <= target; i++){
+        for(int j = 0; j < nums.size(); j ++){
+            if(i - nums[j] >= 0 and dp[i - nums[j]] < INT_MAX - dp[i]) dp[i] += dp[i - nums[j]];
+        }
+    }
+    return int(dp[target]);
+}
+```
+
+## 322 零钱兑换
+DP
+当排列for写外面，当组合for写里面对这题没影响
+```CPP
+int coinChange(vector<int>& coins, int amount) {
+    vector<int> dp(amount + 1, amount + 1);
+    dp[0] = 0;
+    for(int i = 0; i < coins.size(); i++){
+        for(int j = coins[i]; j <= amount; j++){
+            dp[j] = min(dp[j],dp[j - coins[i]] + 1);
+        }
+    }
+    int res = dp[amount] > amount ? -1  : dp[amount];
+    return res;
+}
+```
+
+## 279 完全平方数
+
+题目都没怎么读，跟上题一样的，只不过这次的coins是从1到sqrt(n)
+```CPP
+int numSquares(int n) {
+    vector<int> dp(n + 1,n + 1);
+    dp[0] = 0;
+    int max = sqrt(n) + 1;
+    for(int i = 1; i <= max; i++)
+    {
+        for(int j = i; j <= n; j++){
+            if(j - i * i >= 0) dp[j] = min(dp[j],dp[j - i * i] + 1);
+        }
+    }
+    int res = dp[n] > n ? 0 : dp[n];
+    return res;
+}
+```
+## 139 单词拆分
+
+想到了用DP，但思路感觉也是比较正确，但是因为写的比较复杂出现了空指针
+
+不调了，直接看标答
+
+```CPP
+bool wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordset(wordDict.begin(),wordDict.end());
+    vector<bool> dp(s.size() + 1, false);
+    dp[0] = true;
+    for(int i = 1; i <= s.size(); i++){
+        for(int j = 0; j < i; j++){
+            string word = s.substr(j, i - j);
+            if(wordset.find(word) != wordset.end() && dp[j]){
+                dp[i] = true;
+            }
+        }
+    }
+    return dp[s.size()];
+}
+// 写法比较高明，不像我自己写字符串匹配算法，其实substr结合unordered_set一样能实现匹配效果，速度还快
+```
