@@ -308,3 +308,96 @@ bool wordBreak(string s, vector<string>& wordDict) {
 }
 // 写法比较高明，不像我自己写字符串匹配算法，其实substr结合unordered_set一样能实现匹配效果，速度还快
 ```
+
+## 198 打家劫舍
+
+这题我总喜欢拿一个状态变量status来记录会不会出现dp[i - 1] + nums[i]的情况
+但实际上递推公式已经帮助避免了这个情况
+```CPP
+int rob(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    if (nums.size() == 1) return nums[0];
+    vector<int> dp(nums.size());
+    dp[0] = nums[0];
+    dp[1] = max(nums[0], nums[1]);
+    for (int i = 2; i < nums.size(); i++) {
+        dp[i] = max(dp[i - 2] + nums[i], dp[i - 1]);
+    }
+    return dp[nums.size() - 1];
+}
+```
+
+## 213 打家劫舍II
+
+这题大方针就是针对头节点选不选进行，讨论
+我使用了status表示头节点选了没有，但是遇到0，1元素相等的时候，到底设为true或者false没想明白，
+我的想法是，如果最后一个节点可以选，但我又不知道dp[i - 2]这个结果里面包不包含第一个节点，总而言之就是分类讨论并不清晰
+代码随想录搞了个巧妙地分类
+
+- 考虑头尾都不选
+- 考虑只选头不选尾
+- 考虑只选尾不选头
+
+然后从robRange()直接限制选择的范围
+
+```CPP
+int rob(vector<int>& nums) {
+    if(nums.size() == 1) return nums[0];
+    if(nums.size() == 2) return max(nums[0],nums[1]);
+    vector<int> dp(nums.size(),0);
+    /** 情况23包含情况1 */
+    int res1 = robRange(nums,0,nums.size() - 2);
+    int res2 = robRange(nums,1,nums.size() - 1);
+    return max(res1,res2);
+}
+int robRange(vector<int>& nums,int start,int end){
+    if (end == start) return nums[start];
+    vector<int> dp(nums.size());
+    dp[start] = nums[start];
+    dp[start + 1] = max(nums[start], nums[start + 1]);
+    for (int i = start + 2; i <= end; i++) {
+        dp[i] = max(dp[i - 2] + nums[i], dp[i - 1]);
+    }
+    return dp[end];
+}
+```
+
+## 337 打家劫舍III
+
+
+## 121 买卖股票最佳时机 && 122 买卖股票最佳时机 II
+做了很多遍，依然不会
+```CPP
+/** 贪心 */
+int maxProfit(vector<int>& prices) {
+    int low = INT_MAX;
+    int result = 0;
+    for(int i = 0; i < prices.size(); i++){
+        low = min(low, prices[i]);
+        result = max(result,prices[i] - low);
+    }
+    return result;
+}
+```
+
+这题做了这么多遍，以前都没认真看过它的递推公式，刷题要专心啊
+```CPP
+/** vector size (n,2)，分别记录当天持有股票，不持有股票时候的现金数 */
+int maxProfit(vector<int>& prices) {
+    vector<vector<int>> dp(prices.size(),vector<int>(2,0));
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    for(int i = 1; i < prices.size(); i++){
+        dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+        dp[i][1] = max(-prices[i],dp[i - 1][1]);
+    }
+    return dp[prices.size() -1 ][0];
+}
+```
+
+122 跟121的唯一区别，就是dp的时候,dp[i][1]从dp[i-1][0] - prices[i]，多了一个从0到1的双向状态转换。
+当然，既然能多次买卖，这题有更简单的解法。
+
+## 123 买卖股票最佳时机 III
+
+睡觉去了，24/1/9来做
