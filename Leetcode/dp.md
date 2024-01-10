@@ -497,3 +497,125 @@ int maxProfit(vector<int>& prices, int fee) {
     return *max_element(dp[prices.size() -1].begin(),dp[prices.size() -1].end());
 }
 ```
+
+## 300 最长递增子序列
+这题用回溯怎么暴力搜呢？还真不知道怎么写
+```CPP
+/** 
+1. dp数组表示以i结尾的最长递增子序列
+2. 两层for，一层从1 到 i，一层从0 到 j
+*/
+int lengthOfLIS(vector<int>& nums) {
+    vector<int> dp(nums.size(),1);
+    if(nums.size() == 1) return 1;
+    for(int i = 1; i < nums.size(); i++){
+        for(int j = 0; j < i; j++){
+            if(nums[i] > nums[j]) dp[i] = max(dp[i],dp[j] + 1);
+        }
+    }
+    return *max_element(dp.begin(),dp.end());
+}
+```
+
+## 674 最长连续递增序列
+我觉得这个题目其实容易让人误解，我更愿意称这个题目为
+**最长递增子串**
+就是子序列必须连续
+最长连续递增子序列是另外一个题
+```CPP
+/** 暴力 时间复杂度n^2 */
+    int findLengthOfLCIS(vector<int>& nums) {
+        int res = 1;
+        for(int i = 0; i < nums.size(); i++){
+            int cur = i;
+            int temp = 1;
+            while(cur + 1 < nums.size() && nums[cur + 1]  > nums[cur]){
+                cur++;temp++;
+            }
+             res = temp > res ? temp : res;
+        }
+        return res;
+    }
+```
+```CPP
+/** DP */
+    int findLengthOfLCIS(vector<int>& nums) {
+        vector<int> dp(nums.size(),1);
+        if(nums.size() == 1)return 1;
+        for(int i = 1; i < nums.size(); i++)
+        {
+            if(nums[i] > nums[i - 1]) dp[i] = max(dp[i - 1],dp[i - 1] + 1);
+        }
+        return *max_element(dp.begin(),dp.end());
+    }
+
+```
+
+## 718 最长重复子数组
+
+```CPP
+/** dp[i][j]表示nums1中i结尾，nums2中j结尾的重复子数组长度 */
+int findLength(vector<int>& nums1, vector<int>& nums2) {
+    vector<vector<int>> dp (nums1.size() + 1, vector<int>(nums2.size() + 1, 0));
+    int result = 0;
+    for (int i = 1; i <= nums1.size(); i++) {
+        for (int j = 1; j <= nums2.size(); j++) {
+            if (nums1[i - 1] == nums2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            }
+            if (dp[i][j] > result) result = dp[i][j];
+        }
+    }
+    return result;
+}
+```
+
+## 1143 最长公共子序列
+
+初始化的不是很优美，凑活看吧
+```CPP
+int longestCommonSubsequence(string text1, string text2) {
+    vector<vector<int>> dp(text1.size(),vector<int>(text2.size(),0));
+    // init
+    dp[0][0] = text1[0] == text2[0];
+    for(int i = 1; i < text2.size(); i++){
+        dp[0][i] = max(int(text2[i] == text1[0]),dp[0][i-1]);
+    }
+    for(int i = 1; i < text1.size(); i++){
+        dp[i][0] = max(int(text1[i] == text2[0]),dp[i - 1][0]);
+    }
+    for(int i = 1;i < text1.size(); i++){
+        for(int j = 1; j < text2.size(); j++){
+            /** 相等时候的子序列加一， 不相等的时候左上取大 */
+            if(text1[i] == text2[j]){
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            }else{
+                dp[i][j] = max(dp[i-1][j],dp[i][j- 1]);
+            }
+        }
+    }
+    return dp[text1.size() -1 ][text2.size() - 1];
+}
+```
+
+## 1035 不相交的线
+想到个很妙的回溯算法，显而易见超时了，但很好玩，哈哈哈
+```CPP
+/** 超出时间限制 46 / 74 个通过的测试用例 */
+int maxUncrossedLines(vector<int>& nums1, vector<int>& nums2) {
+    return backTracking(nums1,nums2,0,0);
+}
+int backTracking(vector<int>& nums1, vector<int>& nums2, int start1, int start2){
+    if(start1 == nums1.size() or start2 == nums2.size())return 0;
+    if(nums1[start1]== nums2[start2]){
+        return backTracking(nums1,nums2,start1 + 1,start2 + 1) + 1;
+    }else{
+        return max(backTracking(nums1,nums2,start1 + 1,start2),backTracking(nums1,nums2,start1,start2 + 1));
+    }
+    return -1;
+}
+```
+换DP
+呃，半天一直看不出来dp矩阵怎么写，然后发现，这不就是1143 最长公共子序列
+递推公式也一样
+
