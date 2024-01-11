@@ -617,5 +617,94 @@ int backTracking(vector<int>& nums1, vector<int>& nums2, int start1, int start2)
 ```
 换DP
 呃，半天一直看不出来dp矩阵怎么写，然后发现，这不就是1143 最长公共子序列
-递推公式也一样
+递推公式也一样，代码不放在这了
+
+## 53 最大子序和
+dp表示以i结尾的最大子序和
+最终输出*max_element(dp.begin(),dp.end())
+
+```CPP
+int maxSubArray(vector<int>& nums) {
+    vector<int> dp(nums.size(),0);
+    dp[0] = nums[0];
+    for(int i = 1; i < nums.size(); i++){
+        dp[i] = max(dp[i - 1] + nums[i], nums[i]);
+    }
+    return *max_element(dp.begin(),dp.end());
+}
+```
+
+## 392 判断子序列
+方法一，直接递归双指针比较，0ms 100%
+```CPP
+class Solution {
+    bool res = false;
+public:
+    bool isSubsequence(string s, string t) {
+        backTracking(s,t,0,0);
+        return res;
+    }
+    void backTracking(string s, string t, int ss, int ts)
+    {
+        if(ss == s.size()){
+            res = true;
+            return;
+        }
+        if(ts >= t.size()){
+            return;
+        }
+        char temp = s[ss];
+        while(ts < t.size()){
+            if(temp == t[ts]){
+                backTracking(s,t,ss+1,ts + 1);
+                // 少写了这个return，排查了好久
+                return;
+            }else{
+                ts++;
+            }
+        }
+    }
+};
+```
+方法二：DP
+直接当最长公共子序列问题在做，如果结果 == s.size()就返回true，时间复杂度很高
+编辑距离入门题
+
+## 115 不同的子序列
+
+写了段回溯，直接出错，不调了，直接开始DP吧，又是自动类型推断的，又是迭代器的，还不如索引呢
+```CPP
+class Solution {
+    long res = 0;
+public:
+    int numDistinct(string s, string t) {
+        backTracking(s,t,s.begin(),t.begin());
+        return res;
+    }
+    auto findAll(char c, string& s, string::iterator st){
+        vector<string::iterator> res;
+        while(st != s.end()){
+            if(*st == c)res.push_back(st);
+            st++;
+        }
+        return res;
+    }
+    void backTracking(string& s, string& t, string::iterator ss, string::iterator ts){
+        if(ts == t.end()){
+            res++;
+            return;
+        }
+        if(ss == s.end()){
+            return;
+        }
+        char temp = *ts;
+        auto vec = findAll(temp,s,ss);
+        for(auto item : vec){
+            backTracking(s,t,item++,ts++);
+        }
+    }
+};
+```
+
+DP
 
