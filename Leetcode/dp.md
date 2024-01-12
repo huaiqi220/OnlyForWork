@@ -817,3 +817,87 @@ int minDistance(string word1, string word2) {
     return dp[word1.size()][word2.size()];
 }
 ```
+## 647 回文子串
+我的做法，想出了一种斜着遍历二维dp数组得奇妙方法，时间复杂度936ms 5.01%
+这应该算DP吧？...
+确实是算，但由于每次循环都调用了isValid，时间复杂度是O(n^3)
+```CPP
+int countSubstrings(string s) {
+    if(s.size() == 1) return 1;
+    vector<vector<int>> dp(s.size(), vector<int>(s.size(), 0));
+    // init 
+    for(int i = 0; i< s.size(); i++){
+        dp[i][i] = 1;
+    }
+    for(int j = 1; j < s.size(); j++){
+        int tempj = j;
+        for(int i = 0; tempj < s.size(); ){
+            dp[i][tempj] = dp[i + 1][tempj] + dp[i][tempj - 1] + int(isValid(s,i,tempj)) - dp[i + 1][tempj - 1];
+            i++;
+            tempj++;
+        }
+    }
+    return dp[0][s.size() - 1];
+}
+bool isValid(string s, int start, int end){
+    while(start < end){
+        if(s[start] != s[end]){
+            return false;
+        }
+        start++;
+        end--;
+    }
+    return true;
+}
+```
+改进了一下，用另外一个dp数组存储isValid的结果，时间复杂度降到了O(n^2)
+但占空间，也不优雅，下面是随想录的思路
+```CPP
+int countSubstrings(string s) {
+    vector<vector<int>> dp(s.size(),vector<int>(s.size(),1));
+    int res = 0;
+    for(int i = 0;i < s.size(); i++){
+        dp[i][i] = 1; res++;
+    } 
+    for(int j = 1; j < s.size(); j++){
+        int tj = j;
+        for(int i = 0; tj < s.size();){
+            bool state = dp[i + 1][tj - 1];
+            if(state and s[i] == s[tj]){
+                dp[i][tj] = 1; res++;
+            }else{
+                dp[i][tj] = 0;
+            }
+            i++; tj++;
+        }
+    }
+    return res;
+}
+```
+## 516 最长回文子序列
+dp数组表示ij内部最长回文子序列长度，当si = sj时候 + 2, si != sj时候分别加入两端取max
+随想录提示才做出来的，要复习
+```CPP
+int longestPalindromeSubseq(string s) {
+    vector<vector<int>> dp(s.size(),vector<int>(s.size(),0));
+    for(int i = 0; i < s.size(); i++){
+        dp[i][i] = 1;
+    }
+    for(int j = 1; j < s.size(); j++){
+        int tj = j;
+        for(int i = 0; tj < s.size();){
+            if(s[i] == s[tj]){
+                dp[i][tj] = dp[i + 1][tj - 1] + 2;
+            }else{
+                dp[i][tj] = max(dp[i+1][tj],dp[i][tj - 1]);
+            }
+            i++;
+            tj++;
+        }
+    }
+    return dp[0][s.size() - 1];
+}
+```
+
+
+## 随想录DP算法部分完结✨✨✨🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
