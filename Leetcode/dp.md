@@ -705,6 +705,97 @@ public:
     }
 };
 ```
-
 DP
+```CPP
+/** 
+代码随想录的i-1表示法确实初始化时候比较简单
+不然就要像下面一样两个for初始化
+核心递推公式：
+    if(s[i] == t[j]){
+        dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+    }else{
+        dp[i][j] = dp[i - 1][j];
+    }
+*/
+class Solution {
+public:
+    int numDistinct(string s, string t) {
+        vector<vector<uint64_t>> dp(s.size(),vector<uint64_t>(t.size(),0));
+        uint64_t temp = 0;
+        for(int i = 0; i < s.size(); i++){
+            temp += uint64_t(s[i] == t[0]);
+            dp[i][0] = temp;
+        }
+        for(int i = 1; i < t.size(); i++){
+            dp[0][i] = 0;
+        }
+        for(int i = 1; i < s.size(); i++){
+            for(int j = 1; j < t.size(); j++){
+                if(s[i] == t[j]){
+                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+                }else{
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[s.size() - 1][t.size() - 1];
+    }
+};
+```
 
+## 583 两个字符串的删除操作
+我的做法
+```CPP
+/** 实话说没什么问题，除了不能处理删到最后为空的情况
+这个代码的逻辑认为删空不属于正常情况，如果要考虑删空，那就要设置dp[size + 1][size + 1]
+*/
+int minDistance(string word1, string word2) {
+    vector<vector<int>> dp(word1.size(),vector<int>(word2.size(),501));
+    bool appear = false;
+    for(int i = 0;i < word1.size(); i++){
+        if(word1[i] == word2[0]) appear = true;
+        if(appear){
+            dp[i][0] = i;
+        }
+    }
+    appear = false;
+    for(int j = 0; j< word2.size(); j++){
+        if(word2[j] == word1[0])appear = true;
+        if(appear){
+            dp[0][j] = j;
+        }
+    }
+    for(int i = 1; i < word1.size(); i++){
+        for(int j = 1; j < word2.size(); j++){
+            if(word1[i] == word2[j]){
+                dp[i][j] = dp[i - 1][j - 1];
+            }else{
+                dp[i][j] = min(dp[i - 1][j],dp[i][j - 1] ) + 1;
+            }
+        }
+    }
+    return dp[word1.size() - 1][word2.size() - 1];  
+}
+```
+20ms 82.89%
+```CPP
+/** 说实话代码随想录的i - 1方法确实处理空值方便一点*/
+int minDistance(string word1, string word2) {
+    vector<vector<int>> dp(word1.size() + 1,vector<int>(word2.size() + 1,501));
+    dp[0][0] = 0;
+    for(int i = 1;i <= word1.size(); i++)dp[i][0] = i;
+    for(int j = 1; j <= word2.size(); j++)dp[0][j] = j;
+    for(int i = 1; i <= word1.size(); i++){
+        for(int j = 1; j <= word2.size(); j++){
+            if(word1[i - 1] == word2[j - 1]){
+                dp[i][j] = dp[i - 1][j - 1];
+            }else{
+                dp[i][j] = min(dp[i - 1][j],dp[i][j - 1] ) + 1;
+            }
+        }
+    }
+    return dp[word1.size()][word2.size()];
+}
+```
+
+## 72 编辑距离

@@ -17,4 +17,6 @@ public:
     }
 };
 
-Singleton* instance = Singleton::getInstance();
+// Singleton* instance = Singleton::getInstance();
+// Singleton singleton = Singleton();
+// Singleton* singleton = new Singleton();
