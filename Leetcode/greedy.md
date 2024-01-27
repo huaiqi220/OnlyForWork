@@ -148,3 +148,53 @@ bool canReach(vector<int>& gas, vector<int>& cost,int sindex){
     }  
 ```
 
+## 135 分发糖果
+我一直有个思路，从最低的开始分配，从小到大，依次排序。可能一次遍历，判断左右大小，就能得到结果
+但这个做法要写一个比较函数，建一个结构体的vector，有点麻烦，不如两次遍历，左遍历调大小，右遍历调大小
+```CPP
+// 非常巧妙的方法，第一遍调好左关系，第二遍通过max维持住了第一遍关系的同时调好了右关系
+// 这个解答要背住
+int candy(vector<int>& ratings) {
+    vector<int> candy(ratings.size(),1);
+    for(int i = 1; i < ratings.size(); i++){
+        if(ratings[i] > ratings[i - 1])candy[i] = candy[i - 1] + 1;
+    }
+    for(int i = ratings.size() - 2; i >= 0 ; i--){
+        if(ratings[i] > ratings[i + 1])candy[i]  = max(candy[i], candy[i + 1] + 1);
+    }
+    int res = 0;
+    for(auto item : candy) res += item;
+    return res;
+}
+```
+
+## 406 根据身高重建队列
+这题，最重要的思路，就是高的人眼里只看得见比他更高的，所以从大往小处理就ok
+其次，当两人身高一样高的时候，眼里也是看得见的，说人话就是，先拍k小的，再拍k大的
+所以要针对这种排序，自己写一个排序函数(这块还不熟，要记住)
+```CPP
+static bool specialSort(vector<int>& i1,vector<int>& i2){
+    // 特殊的排序函数
+    if(i1[0] != i2[0]){
+        return i1[0] > i2[0];
+    }else{
+        return i1[1] < i2[1];
+    }
+}
+vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+    sort(people.begin(),people.end(),specialSort);
+    list<vector<int>> que;
+    for(int i = 0; i < people.size(); i++){
+        int position = people[i][1];
+        // list的插入时间开销更小
+        list<vector<int>>::iterator it = que.begin();
+        while(position--){
+            it++;
+        }
+        que.insert(it,people[i]);
+    }
+    // vector提供了构造函数直接从list转为vector
+    return vector<vector<int>>(que.begin(),que.end());
+}
+```
+
