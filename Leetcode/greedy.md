@@ -197,4 +197,27 @@ vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
     return vector<vector<int>>(que.begin(),que.end());
 }
 ```
-
+## 452 用最少数量的箭引爆气球
+首先思路上，从重叠最多的位置开射，是正确的，不存在什么，只射部分，再射两边箭更少的反例
+其次，我一开始希望用的方法是，什么标记数组，然后遍历气球填重叠数组，然后找最大，再剔除气球，再修改标记数组
+这个方法可能是对的？我没写，太繁琐，时间复杂度不低
+正确方法：
+```CPP
+// 先排序，再遍历，当经过了重叠气球的最小右边界，就需要一支箭
+static bool cmp(const vector<int>& a, const vector<int>& b){
+    return a[0] < b[0];
+}
+int findMinArrowShots(vector<vector<int>>& points) {
+    if(points.size() == 0) return 0;
+    sort(points.begin(),points.end(),cmp);
+    int result = 1;
+    for(int i = 1; i < points.size(); i++){
+        if(points[i][0] > points[i - 1][1]){
+            result++;
+        }else{
+            points[i][1] = min(points[i - 1][1],points[i][1]);
+        }
+    }
+    return result;
+}
+```
