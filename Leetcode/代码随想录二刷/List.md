@@ -87,3 +87,56 @@ public:
     }
 };
 ```
+
+## 206 反转链表
+头插法
+```CPP
+ListNode* reverseList(ListNode* head) {
+    ListNode* dummy = new ListNode(0);
+    while(head){
+        ListNode* n = head->next;
+        head->next = nullptr;
+        head->next = dummy->next;
+        dummy->next = head;
+        head = n;
+    }
+    return dummy->next;
+}
+```
+## 24 两两交换链表中的节点
+用个count记录节点数的迭代方法，出bug，递归特别简单，在此把两种方法都写一下
+```CPP
+// 递归
+ListNode* swapPairs(ListNode* head) {
+    if(head == nullptr || head->next == nullptr){
+        return head;
+    }
+    ListNode* second = head->next;
+    head->next = swapPairs(second->next);
+    second->next = head;
+    return second;
+}
+```
+```CPP
+    ListNode* swapPairs(ListNode* head) {
+        ListNode* dummy = new ListNode();
+        int count = 1;
+        ListNode* moveptr = dummy;
+        while(head){
+            ListNode* cur = head->next;
+            // 很绷不住，代码几次跑不过，加了一行这个就跑过了
+            head->next = nullptr;
+            if(count % 2 == 1){
+                moveptr->next = head;
+            }
+            if(count % 2 == 0){
+                head->next = moveptr->next;
+                moveptr->next = head;
+                moveptr = moveptr->next->next;
+            }
+            count++;
+            head = cur;
+        }
+        return dummy->next;
+    }
+```
