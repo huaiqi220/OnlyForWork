@@ -112,6 +112,45 @@ public:
         return;
     }
 };
+
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> out(n, vector<int>(n));
+        int u = 0, d = n-1, l = 0, r = n-1;
+        int x = l, y = u, o = 1;
+        while (l < r){
+            for (int i = l; i < r; i++){
+                x = i;
+                y = u;
+                out[y][x] = o++;
+            }
+
+            for (int i = u; i < d; i++){
+                y = i;
+                x = r;
+                out[y][x] = o++;
+            }
+
+            for (int i = r; i > l; i--){
+                x = i;
+                y = d;
+                out[y][x] = o++;
+            }
+
+            for (int i = d; i > u; i--){
+                y = i;
+                x = l;
+                out[y][x] = o++;
+            }
+
+            l++, r--, u++, d--;
+        }
+        if (l == r)
+            out[l][r] = n * n;
+        return out;
+    }
+};
 ```
 
 ## 334 反转字符串
